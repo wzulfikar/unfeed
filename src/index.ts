@@ -25,6 +25,18 @@ function init() {
   document.head.insertBefore(styleElement, document.head.firstChild);
 
   document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
+    // Infer config from data attributes
+    const dataset = (el as HTMLElement).dataset;
+    if (dataset.unfeedButton) config.url = dataset.unfeedButton;
+    if (dataset.unfeedName) config.user.name = dataset.unfeedName;
+    if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
+    if (dataset.unfeedPrimaryColor) {
+      (document.querySelector(":root") as HTMLElement).style.setProperty(
+        "--unfeed-primary-color",
+        dataset.unfeedPrimaryColor
+      );
+    }
+
     el.addEventListener("click", open);
   });
 }
