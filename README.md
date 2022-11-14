@@ -22,7 +22,7 @@
 1. Load the widget on your page:
 
    ```html
-   <script src="https://unpkg.com/feedbackfin@^1" defer></script>
+   <script src="https://unpkg.com/unfeed@^1" defer></script>
    ```
 
 2. Setup a [webhook URL](#setting-up-a-webhook-url) (read instructions in the
