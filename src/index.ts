@@ -68,13 +68,9 @@ function open(e: Event) {
   });
 
   trap.activate();
-
   document.getElementById("unfeed__close")!.addEventListener("click", close);
-
   Array.from(containerElement.getElementsByClassName("unfeed__radio")).forEach(
-    (el) => {
-      el.addEventListener("change", changeType);
-    }
+    (el) => el.addEventListener("change", changeType)
   );
 
   document.getElementById("unfeed__form")!.addEventListener("submit", submit);
@@ -82,7 +78,6 @@ function open(e: Event) {
 
 function close() {
   trap.deactivate();
-
   containerElement.innerHTML = "";
 
   containerElement.remove();
@@ -95,9 +90,9 @@ function changeType(e: Event) {
 
   containerElement.setAttribute("data-unfeed-type", value);
 
-  let placeholder = "I think…";
-  if (value === "issue") placeholder = "I’m having an issue with…";
-  else if (value === "idea") placeholder = "I’d like to see…";
+  let placeholder = "I think..";
+  if (value === "issue") placeholder = "I'm having an issue with..";
+  else if (value === "idea") placeholder = "I'd like to see..";
 
   document
     .getElementById("unfeed__message")
@@ -117,7 +112,7 @@ function submit(e: Event) {
 
   const submitElement = document.getElementById("unfeed__submit")!;
   submitElement.setAttribute("disabled", "");
-  submitElement.innerHTML = "Sending…";
+  submitElement.innerHTML = "Sending..";
 
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -134,9 +129,7 @@ function submit(e: Event) {
     headers: myHeaders,
     body: JSON.stringify(data),
   })
-    .then(() => {
-      containerElement.setAttribute("data-success", "");
-    })
+    .then(() => containerElement.setAttribute("data-success", ""))
     .catch((e) => {
       console.error("Unfeed:", e);
       if (!config.disableErrorAlert)
