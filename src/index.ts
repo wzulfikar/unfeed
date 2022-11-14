@@ -89,16 +89,15 @@ function close() {
 
 function changeType(e: Event) {
   const value = (e.target as HTMLInputElement).value;
-
   containerElement.setAttribute("data-unfeed-type", value);
 
   let placeholder = "I think..";
   if (value === "issue") placeholder = "I'm having an issue with..";
-  else if (value === "idea") placeholder = "I'd like to see..";
+  if (value === "idea") placeholder = "I'd like to see..";
 
-  document
-    .getElementById("unfeed__message")
-    ?.setAttribute("placeholder", placeholder);
+  const feedback = document.getElementById("unfeed__message") as HTMLElement;
+  feedback.setAttribute("placeholder", placeholder);
+  feedback.focus();
 }
 
 function submit(e: Event) {
