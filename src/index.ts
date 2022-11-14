@@ -7,6 +7,7 @@ import formCSS from "./form.css";
 export type UnfeedConfig = {
   url: string;
   user: Record<any, any>;
+  context?: string;
   disableErrorAlert: boolean;
 };
 const config: UnfeedConfig = {
@@ -32,6 +33,7 @@ function init() {
     if (dataset.unfeedButton) config.url = dataset.unfeedButton;
     if (dataset.unfeedName) config.user.name = dataset.unfeedName;
     if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
+    if (dataset.unfeedContext) config.context = dataset.unfeedContext;
     if (dataset.unfeedOpen !== undefined) open(el);
     if (dataset.unfeedPrimaryColor) {
       (document.querySelector(":root") as HTMLElement).style.setProperty(
@@ -122,6 +124,7 @@ function submit(e: Event) {
     ...config.user,
     feedbackType: (target.elements as any).feedbackType.value,
     message: (target.elements as any).message.value,
+    context: config.context,
     timestamp: Date.now(),
   };
 
