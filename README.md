@@ -1,4 +1,4 @@
-# Feedback Fin
+# Unfeed – A fork of Feedback Fin
 
 **A tiny widget to collect feedback anywhere on your website. That’s it.**
 
@@ -39,7 +39,7 @@
 
 3. Set a button to open the widget:
    ```html
-   <button data-feedbackfin-button>Feedback</button>
+   <button data-unfeed-button>Feedback</button>
    ```
 
 ## Setting up a webhook URL

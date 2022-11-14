@@ -2,10 +2,9 @@
   "name": "unfeed",
   "version": "1.0.3",
   "license": "Apache-2.0",
-  "homepage": "https://feedbackfin.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rowyio/feedbackfin.git"
+    "url": "https://github.com/wzulfikar/unfeed.git"
   },
   "type": "module",
   "source": "src/index.ts",
