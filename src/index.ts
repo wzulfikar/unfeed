@@ -25,11 +25,14 @@ function init() {
   document.head.insertBefore(styleElement, document.head.firstChild);
 
   document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+
     // Infer config from data attributes
-    const dataset = (el as HTMLElement).dataset;
+    const dataset = el.dataset;
     if (dataset.unfeedButton) config.url = dataset.unfeedButton;
     if (dataset.unfeedName) config.user.name = dataset.unfeedName;
     if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
+    if (dataset.unfeedOpen !== undefined) open(el);
     if (dataset.unfeedPrimaryColor) {
       (document.querySelector(":root") as HTMLElement).style.setProperty(
         "--unfeed-primary-color",
@@ -37,7 +40,7 @@ function init() {
       );
     }
 
-    el.addEventListener("click", open);
+    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
   });
 }
 window.addEventListener("load", init);
@@ -50,12 +53,11 @@ const trap = createFocusTrap(containerElement, {
   allowOutsideClick: true,
 });
 
-function open(e: Event) {
+function open(target: HTMLElement) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML;
   containerElement.style.display = "block";
 
-  const target = (e?.target as HTMLElement) || document.body;
   computePosition(target, containerElement, {
     placement: "bottom",
     middleware: [flip(), shift({ crossAxis: true, padding: 8 })],
