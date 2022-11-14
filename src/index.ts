@@ -4,37 +4,37 @@ import { createFocusTrap } from "focus-trap";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
 
-export type FeedbackFinConfig = {
+export type UnfeedConfig = {
   url: string;
   user: Record<any, any>;
   disableErrorAlert: boolean;
 };
-const config: FeedbackFinConfig = {
+const config: UnfeedConfig = {
   url: "",
   user: {},
   disableErrorAlert: false,
   // Spread user config when loaded
-  ...(window as any).feedbackfin?.config,
+  ...(window as any).unfeed?.config,
 };
 
 function init() {
   const styleElement = document.createElement("style");
-  styleElement.id = "feedbackfin__css";
+  styleElement.id = "unfeed__css";
   styleElement.innerHTML = formCSS;
 
   document.head.insertBefore(styleElement, document.head.firstChild);
 
-  document.querySelectorAll("[data-feedbackfin-button]").forEach((el) => {
+  document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
     el.addEventListener("click", open);
   });
 }
 window.addEventListener("load", init);
 
 const containerElement = document.createElement("div");
-containerElement.id = "feedbackfin__container";
+containerElement.id = "unfeed__container";
 
 const trap = createFocusTrap(containerElement, {
-  initialFocus: "#feedbackfin__radio--issue",
+  initialFocus: "#unfeed__radio--issue",
   allowOutsideClick: true,
 });
 
@@ -57,19 +57,15 @@ function open(e: Event) {
 
   trap.activate();
 
-  document
-    .getElementById("feedbackfin__close")!
-    .addEventListener("click", close);
+  document.getElementById("unfeed__close")!.addEventListener("click", close);
 
-  Array.from(
-    containerElement.getElementsByClassName("feedbackfin__radio")
-  ).forEach((el) => {
-    el.addEventListener("change", changeType);
-  });
+  Array.from(containerElement.getElementsByClassName("unfeed__radio")).forEach(
+    (el) => {
+      el.addEventListener("change", changeType);
+    }
+  );
 
-  document
-    .getElementById("feedbackfin__form")!
-    .addEventListener("submit", submit);
+  document.getElementById("unfeed__form")!.addEventListener("submit", submit);
 }
 
 function close() {
@@ -78,21 +74,21 @@ function close() {
   containerElement.innerHTML = "";
 
   containerElement.remove();
-  containerElement.removeAttribute("data-feedback-type");
+  containerElement.removeAttribute("data-unfeed-type");
   containerElement.removeAttribute("data-success");
 }
 
 function changeType(e: Event) {
   const value = (e.target as HTMLInputElement).value;
 
-  containerElement.setAttribute("data-feedback-type", value);
+  containerElement.setAttribute("data-unfeed-type", value);
 
   let placeholder = "I think…";
   if (value === "issue") placeholder = "I’m having an issue with…";
   else if (value === "idea") placeholder = "I’d like to see…";
 
   document
-    .getElementById("feedbackfin__message")
+    .getElementById("unfeed__message")
     ?.setAttribute("placeholder", placeholder);
 }
 
@@ -101,13 +97,13 @@ function submit(e: Event) {
   const target = e.target as HTMLFormElement;
 
   if (!config.url) {
-    console.error("Feedback Fin: No URL provided");
+    console.error("Unfeed: No URL provided");
     if (!config.disableErrorAlert)
       alert("Could not send feedback: No URL provided");
     return;
   }
 
-  const submitElement = document.getElementById("feedbackfin__submit")!;
+  const submitElement = document.getElementById("unfeed__submit")!;
   submitElement.setAttribute("disabled", "");
   submitElement.innerHTML = "Sending…";
 
@@ -130,7 +126,7 @@ function submit(e: Event) {
       containerElement.setAttribute("data-success", "");
     })
     .catch((e) => {
-      console.error("Feedback Fin:", e);
+      console.error("Unfeed:", e);
       if (!config.disableErrorAlert)
         alert(`Could not send feedback: ${e.message}`);
     });
@@ -138,7 +134,7 @@ function submit(e: Event) {
   return false;
 }
 
-const feedbackfin = { init, open, changeType, close, submit, config };
-(window as any).feedbackfin = feedbackfin;
+const unfeed = { init, open, changeType, close, submit, config };
+(window as any).unfeed = unfeed;
 
-export default feedbackfin;
+export default unfeed;
