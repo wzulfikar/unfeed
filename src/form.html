@@ -1,6 +1,6 @@
 <button
-  id="unfeed__close"
-  class="unfeed__icon-button"
+  id="${t.ns}__close"
+  class="${t.ns}__icon-button"
   type="reset"
   aria-label="Close"
 >
@@ -20,71 +20,73 @@
   </svg>
 </button>
 
-<form id="unfeed__form">
-  <h1 id="unfeed__title">What's on your mind?</h1>
+<form id="${t.ns}__form">
+  <h1 id="${t.ns}__title">${t.title}</h1>
 
-  <div id="unfeed__radio-group" role="radiogroup" aria-label="Feedback type">
+  <div id="${t.ns}__radio-group" role="radiogroup" aria-label="Feedback type">
     <input
-      class="unfeed__radio"
+      class="${t.ns}__radio"
       type="radio"
-      id="unfeed__radio--issue"
+      id="${t.ns}__radio--issue"
       name="feedbackType"
       value="issue"
       required
     />
     <label
-      for="unfeed__radio--issue"
-      class="unfeed__button unfeed__radio-label"
+      for="${t.ns}__radio--issue"
+      class="${t.ns}__button ${t.ns}__radio-label"
     >
-      <span class="unfeed__radio-icon">&#x1f914;</span> Issue
+      <span class="${t.ns}__radio-icon">${t.issueIcon}</span> ${t.issueLabel}
     </label>
 
     <input
-      class="unfeed__radio"
+      class="${t.ns}__radio"
       type="radio"
-      id="unfeed__radio--idea"
+      id="${t.ns}__radio--idea"
       name="feedbackType"
       value="idea"
       required
     />
-    <label for="unfeed__radio--idea" class="unfeed__button unfeed__radio-label">
-      <span class="unfeed__radio-icon">&#x1F4A1;</span> Idea
+    <label
+      for="${t.ns}__radio--idea"
+      class="${t.ns}__button ${t.ns}__radio-label"
+    >
+      <span class="${t.ns}__radio-icon">${t.ideaIcon}</span> ${t.ideaLabel}
     </label>
 
     <input
-      class="unfeed__radio"
+      class="${t.ns}__radio"
       type="radio"
-      id="unfeed__radio--other"
+      id="${t.ns}__radio--other"
       name="feedbackType"
       value="other"
       required
     />
     <label
-      for="unfeed__radio--other"
-      class="unfeed__button unfeed__radio-label"
+      for="${t.ns}__radio--other"
+      class="${t.ns}__button ${t.ns}__radio-label"
     >
-      <span class="unfeed__radio-icon">&#x1F4AD;</span> Other
+      <span class="${t.ns}__radio-icon">${t.otherIcon}</span> ${t.otherLabel}
     </label>
   </div>
 
-  <div id="unfeed__step2">
+  <div id="${t.ns}__step2">
     <textarea
-      id="unfeed__message"
+      id="${t.ns}__message"
       name="message"
       type="text"
-      placeholder="I think.."
+      placeholder="${t.placeholder.other}"
       required
       rows="2"
       aria-label="Message"
     ></textarea>
-
-    <button id="unfeed__submit" class="unfeed__button" type="submit">
-      Send
+    <button id="${t.ns}__submit" class="${t.ns}__button" type="submit">
+      ${t.submitText}
     </button>
   </div>
 </form>
 
-<div id="unfeed__success">
+<div id="${t.ns}__success">
   <svg viewBox="0 0 18 18" width="3em" height="3em" role="presentation">
     <polyline
       stroke-width="2"
@@ -92,15 +94,10 @@
       stroke-linejoin="round"
       points="2.705 8.29 7 12.585 15.295 4.29"
       fill="none"
-      id="unfeed__check"
+      id="${t.ns}__check"
     />
   </svg>
-
-  Thanks for your feedback!
+  ${t.thankyouText}
 </div>
 
-<div id="unfeed__footer">
-  <a href="https://www.rowy.io/feedbackfin" target="_blank" rel="noopener">
-    Powered by Rowy
-  </a>
-</div>
+<div id="${t.ns}__footer">Powered by Feedback Fin</div>

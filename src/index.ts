@@ -11,13 +11,44 @@ export type UnfeedConfig = {
   context?: string;
   footer?: string;
   payload?: Record<string, string>;
+  locale?: typeof defaultLocale;
 };
 const config: UnfeedConfig = {
   url: "",
   user: {},
   disableErrorAlert: false,
   // Spread user config when loaded
+  locale: (window as any).unfeed?.locale,
   ...(window as any).unfeed?.config,
+};
+
+const defaultLocale = {
+  ns: "unfeed",
+  title: "What's on your mind?",
+  issueLabel: "Issue",
+  ideaLabel: "Idea",
+  otherLabel: "Other",
+  issueIcon: "&#128064;", // 👀 (https://emojiguide.org/eyes)
+  ideaIcon: "&#128161;", // 💡 (https://emojiguide.org/light-bulb)
+  otherIcon: "&#128173;", // 💭 (https://emojiguide.org/thought-balloon)
+  placeholder: {
+    issue: "I'm having an issue with..",
+    idea: "I think..",
+    other: "I'd like to see..",
+  },
+  submitText: "Send",
+  submitLoadingText: "Sending..",
+  thankyouText: "Thanks for your feedback!",
+};
+
+// Merge default locale with config
+const locale = {
+  ...defaultLocale,
+  ...config.locale,
+  placeholder: {
+    ...defaultLocale.placeholder,
+    ...config.locale?.placeholder,
+  },
 };
 
 function init() {
@@ -57,9 +88,9 @@ const trap = createFocusTrap(containerElement, {
   allowOutsideClick: true,
 });
 
-function open(target: HTMLElement) {
+function renderHtml(containerElement: HTMLDivElement) {
   document.body.appendChild(containerElement);
-  containerElement.innerHTML = formHTML;
+  containerElement.innerHTML = formHTML(locale);
   containerElement.style.display = "block";
 
   // Customize footer
@@ -67,6 +98,10 @@ function open(target: HTMLElement) {
     containerElement.querySelector("#unfeed__footer")!.innerHTML =
       config.footer;
   }
+}
+
+function open(target: HTMLElement) {
+  renderHtml(containerElement);
 
   computePosition(target, containerElement, {
     placement: "bottom",
@@ -100,15 +135,12 @@ function close() {
 }
 
 function changeType(e: Event) {
-  const value = (e.target as HTMLInputElement).value;
+  const value = (e.target as HTMLInputElement)
+    .value as keyof typeof locale.placeholder;
   containerElement.setAttribute("data-unfeed-type", value);
 
-  let placeholder = "I think..";
-  if (value === "issue") placeholder = "I'm having an issue with..";
-  if (value === "idea") placeholder = "I'd like to see..";
-
   const feedback = document.getElementById("unfeed__message") as HTMLElement;
-  feedback.setAttribute("placeholder", placeholder);
+  feedback.setAttribute("placeholder", locale.placeholder[value]);
   feedback.focus();
 }
 
@@ -135,16 +167,15 @@ function submit(e: Event, buttonElement: HTMLElement) {
   }
 
   if (!config.url) {
-    console.error("Unfeed: No URL provided");
-    if (!config.disableErrorAlert) {
-      alert("Could not send feedback: No URL provided");
-    }
+    config.disableErrorAlert
+      ? console.error("Unfeed: No URL provided")
+      : alert("Could not send feedback: No URL provided");
     return;
   }
 
   const submitElement = document.getElementById("unfeed__submit")!;
   submitElement.setAttribute("disabled", "");
-  submitElement.innerHTML = "Sending..";
+  submitElement.innerHTML = locale.submitLoadingText;
 
   const data = {
     ...config.user,
@@ -163,11 +194,10 @@ function submit(e: Event, buttonElement: HTMLElement) {
   })
     .then(() => containerElement.setAttribute("data-success", ""))
     .catch((e) => {
-      console.error("Unfeed:", e);
-      if (!config.disableErrorAlert)
-        alert(`Could not send feedback: ${e.message}`);
+      config.disableErrorAlert
+        ? console.error("Unfeed:", e)
+        : alert(`Could not send feedback: ${e.message}`);
     });
-
   return false;
 }
 
