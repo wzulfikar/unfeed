@@ -89,18 +89,18 @@ URL is set or the request fails. Default: `disableErrorAlert: false`
 ## How it works
 
 When the script is loaded, it looks for any elements with the
-`data-feedbackfin-button` attribute and opens the widget when any of those
-elements are clicked.
+`data-unfeed-button` attribute and opens the widget when any of those elements
+are clicked.
 
 ```html
-<button data-feedbackfin-button>Feedback</button>
+<button data-unfeed-button>Feedback</button>
 ```
 
-The `window.feedbackfin` object exposes the `open`, `close`, and `submit`
-methods, so they can also be called directly.
+The `window.unfeed` object exposes the `open`, `close`, and `submit` methods, so
+they can also be called directly.
 
 ```html
-<button onclick="window.feedbackfin.open(event)">Feedback</button>
+<button onclick="window.unfeed.open(event)">Feedback</button>
 ```
 
 The widget uses `event.target` to compute its position using

@@ -349,30 +349,25 @@
 #unfeed__container[data-success] #unfeed__success {
   display: flex;
 }
+#unfeed__container[data-unfeed-type] #unfeed__footer {
+  display: none;
+}
 
-#unfeed__branding {
+#unfeed__footer {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0.5rem;
+  bottom: 0.9rem;
 
   font-size: 0.6875em;
   text-align: center;
-}
-#unfeed__branding a {
-  border-radius: calc(var(--unfeed-border-radius) / 4);
-
-  text-decoration: none;
-  color: inherit;
-
   opacity: var(--unfeed-icon-button-opacity);
   transition: var(--unfeed-button-transition);
 }
-#unfeed__branding a:hover,
-#unfeed__branding a:focus-visible {
-  opacity: calc(var(--unfeed-icon-button-opacity) * 2);
+#unfeed__footer a {
+  text-decoration: none;
+  color: inherit;
 }
-#unfeed__branding a:active {
-  opacity: calc(var(--unfeed-icon-button-opacity) * 0.75);
-  transition-duration: 0s;
+#unfeed__footer:hover {
+  opacity: calc(var(--unfeed-icon-button-opacity) * 2);
 }

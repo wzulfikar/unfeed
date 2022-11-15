@@ -7,8 +7,9 @@ import formCSS from "./form.css";
 export type UnfeedConfig = {
   url: string;
   user: Record<any, any>;
-  context?: string;
   disableErrorAlert: boolean;
+  context?: string;
+  footer?: string;
 };
 const config: UnfeedConfig = {
   url: "",
@@ -34,7 +35,11 @@ function init() {
     if (dataset.unfeedName) config.user.name = dataset.unfeedName;
     if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
     if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+    if (dataset.unfeedFooter !== undefined)
+      config.footer = dataset.unfeedFooter;
     if (dataset.unfeedOpen !== undefined) open(el);
+
+    // Customize primary color
     if (dataset.unfeedPrimaryColor) {
       (document.querySelector(":root") as HTMLElement).style.setProperty(
         "--unfeed-primary-color",
@@ -59,6 +64,11 @@ function open(target: HTMLElement) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML;
   containerElement.style.display = "block";
+
+  if (config.footer !== undefined) {
+    containerElement.querySelector("#unfeed__footer")!.innerHTML =
+      config.footer;
+  }
 
   computePosition(target, containerElement, {
     placement: "bottom",
