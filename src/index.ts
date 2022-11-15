@@ -10,6 +10,7 @@ export type UnfeedConfig = {
   disableErrorAlert: boolean;
   context?: string;
   footer?: string;
+  payload?: Record<string, string>;
 };
 const config: UnfeedConfig = {
   url: "",
@@ -30,14 +31,10 @@ function init() {
     if (!(el instanceof HTMLElement)) return;
 
     // Infer config from data attributes
-    const dataset = el.dataset;
-    if (dataset.unfeedButton) config.url = dataset.unfeedButton;
-    if (dataset.unfeedName) config.user.name = dataset.unfeedName;
-    if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
-    if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+    const dataset = el.dataset as Record<string, string>;
+    if (dataset.unfeedOpen !== undefined) open(el, dataset);
     if (dataset.unfeedFooter !== undefined)
       config.footer = dataset.unfeedFooter;
-    if (dataset.unfeedOpen !== undefined) open(el);
 
     // Customize primary color
     if (dataset.unfeedPrimaryColor) {
@@ -47,7 +44,9 @@ function init() {
       );
     }
 
-    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
+    el.addEventListener("click", (e: Event) =>
+      open(e.target as HTMLElement, dataset)
+    );
   });
 }
 window.addEventListener("load", init);
@@ -60,11 +59,12 @@ const trap = createFocusTrap(containerElement, {
   allowOutsideClick: true,
 });
 
-function open(target: HTMLElement) {
+function open(target: HTMLElement, dataset: Record<string, string>) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML;
   containerElement.style.display = "block";
 
+  // Customize footer
   if (config.footer !== undefined) {
     containerElement.querySelector("#unfeed__footer")!.innerHTML =
       config.footer;
@@ -87,7 +87,9 @@ function open(target: HTMLElement) {
     (el) => el.addEventListener("change", changeType)
   );
 
-  document.getElementById("unfeed__form")!.addEventListener("submit", submit);
+  document
+    .getElementById("unfeed__form")!
+    .addEventListener("submit", (e) => submit(e, dataset));
 }
 
 function close() {
@@ -112,14 +114,32 @@ function changeType(e: Event) {
   feedback.focus();
 }
 
-function submit(e: Event) {
+function submit(e: Event, dataset: Record<string, string>) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
+  // Merge latest values from dataset to config
+  if (dataset.unfeedButton) config.url = dataset.unfeedButton;
+  if (dataset.unfeedName) config.user.name = dataset.unfeedName;
+  if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
+  if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+
+  // If specified, include arbitrary payload as key value
+  const prefix = "unfeedPayload";
+  for (const key in dataset) {
+    if (key.startsWith(prefix)) {
+      // Transform `unfeedPayloadSomeKey` into `someKey`
+      const payloadName =
+        key.charAt(prefix.length).toLowerCase() + key.slice(prefix.length + 1);
+      config.payload = { ...config.payload, [payloadName]: dataset[key] };
+    }
+  }
+
   if (!config.url) {
     console.error("Unfeed: No URL provided");
-    if (!config.disableErrorAlert)
+    if (!config.disableErrorAlert) {
       alert("Could not send feedback: No URL provided");
+    }
     return;
   }
 
@@ -127,20 +147,19 @@ function submit(e: Event) {
   submitElement.setAttribute("disabled", "");
   submitElement.innerHTML = "Sending..";
 
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
   const data = {
     ...config.user,
     feedbackType: (target.elements as any).feedbackType.value,
     message: (target.elements as any).message.value,
-    context: config.context,
     timestamp: Date.now(),
+    context: config.context,
+    payload: config.payload,
   };
 
   fetch(config.url, {
+    headers: { "Content-Type": "application/json" },
     method: "POST",
-    headers: myHeaders,
+    mode: dataset.unfeedCorsMode as RequestMode | undefined,
     body: JSON.stringify(data),
   })
     .then(() => containerElement.setAttribute("data-success", ""))
