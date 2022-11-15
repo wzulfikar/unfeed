@@ -1,4 +1,7 @@
-# Unfeed – A fork of Feedback Fin
+<h1 align=center>Unfeed</h1>
+<p align=center>A fork of Feedback Fin to add more customization. Refer to <a href="https://github.com/wzulfikar/unfeed/pull/1">PR #1</a> to see what changed.</p>
+
+---
 
 **A tiny widget to collect feedback anywhere on your website. That’s it.**
 
