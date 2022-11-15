@@ -30,9 +30,9 @@ function init() {
   document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
     if (!(el instanceof HTMLElement)) return;
 
-    // Infer config from data attributes
-    const dataset = el.dataset as Record<string, string>;
-    if (dataset.unfeedOpen !== undefined) open(el, dataset);
+    // Infer config from dataset
+    const dataset = el.dataset;
+    if (dataset.unfeedOpen !== undefined) open(el);
     if (dataset.unfeedFooter !== undefined)
       config.footer = dataset.unfeedFooter;
 
@@ -44,9 +44,7 @@ function init() {
       );
     }
 
-    el.addEventListener("click", (e: Event) =>
-      open(e.target as HTMLElement, dataset)
-    );
+    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
   });
 }
 window.addEventListener("load", init);
@@ -59,7 +57,7 @@ const trap = createFocusTrap(containerElement, {
   allowOutsideClick: true,
 });
 
-function open(target: HTMLElement, dataset: Record<string, string>) {
+function open(target: HTMLElement) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML;
   containerElement.style.display = "block";
@@ -89,7 +87,7 @@ function open(target: HTMLElement, dataset: Record<string, string>) {
 
   document
     .getElementById("unfeed__form")!
-    .addEventListener("submit", (e) => submit(e, dataset));
+    .addEventListener("submit", (e) => submit(e, target));
 }
 
 function close() {
@@ -114,11 +112,12 @@ function changeType(e: Event) {
   feedback.focus();
 }
 
-function submit(e: Event, dataset: Record<string, string>) {
+function submit(e: Event, buttonElement: HTMLElement) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
   // Merge latest values from dataset to config
+  const dataset = buttonElement.dataset as Record<string, string>;
   if (dataset.unfeedButton) config.url = dataset.unfeedButton;
   if (dataset.unfeedName) config.user.name = dataset.unfeedName;
   if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
