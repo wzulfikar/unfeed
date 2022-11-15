@@ -1,4 +1,4 @@
-# Feedback Fin
+# Unfeed – A fork of Feedback Fin
 
 **A tiny widget to collect feedback anywhere on your website. That’s it.**
 
@@ -22,10 +22,12 @@
 1. Load the widget on your page:
 
    ```html
-   <script src="https://unpkg.com/feedbackfin@^1" defer></script>
+   <script src="https://unpkg.com/unfeed@^1" defer></script>
    ```
 
-2. Setup a [webhook URL](#setting-up-a-webhook-url) (read instructions in the next section) and configure that in the script. Optionally, add any [user info](#user) that you want to pass in from the website:
+2. Setup a [webhook URL](#setting-up-a-webhook-url) (read instructions in the
+   next section) and configure that in the script. Optionally, add any
+   [user info](#user) that you want to pass in from the website:
 
    ```html
    <script>
@@ -37,7 +39,7 @@
 
 3. Set a button to open the widget:
    ```html
-   <button data-feedbackfin-button>Feedback</button>
+   <button data-unfeed-button>Feedback</button>
    ```
 
 ## Setting up a webhook URL
@@ -45,9 +47,13 @@
 This is the URL to send the feedback to. The widget will make a POST request to
 this URL with the feedback data as a JSON body.
 
-Generate a webhook URL easily using Rowy's low-code platform and manage feedback data on a collaborative spreadsheet-UI. Optionally, you can further automate on incoming feedback with Rowy's built-in code-editor (eg: notify on team slack/discord, email follow up etc).
+Generate a webhook URL easily using Rowy's low-code platform and manage feedback
+data on a collaborative spreadsheet-UI. Optionally, you can further automate on
+incoming feedback with Rowy's built-in code-editor (eg: notify on team
+slack/discord, email follow up etc).
 
-End-to-end video instructions on the [website&nbsp;&UpperRightArrow;](https://feedbackfin.com/setup)
+End-to-end video instructions on the
+[website&nbsp;&UpperRightArrow;](https://feedbackfin.com/setup)
 
 ## Options
 
@@ -83,18 +89,18 @@ URL is set or the request fails. Default: `disableErrorAlert: false`
 ## How it works
 
 When the script is loaded, it looks for any elements with the
-`data-feedbackfin-button` attribute and opens the widget when any of those
-elements are clicked.
+`data-unfeed-button` attribute and opens the widget when any of those elements
+are clicked.
 
 ```html
-<button data-feedbackfin-button>Feedback</button>
+<button data-unfeed-button>Feedback</button>
 ```
 
-The `window.feedbackfin` object exposes the `open`, `close`, and `submit`
-methods, so they can also be called directly.
+The `window.unfeed` object exposes the `open`, `close`, and `submit` methods, so
+they can also be called directly.
 
 ```html
-<button onclick="window.feedbackfin.open(event)">Feedback</button>
+<button onclick="window.unfeed.open(event)">Feedback</button>
 ```
 
 The widget uses `event.target` to compute its position using
@@ -115,14 +121,14 @@ You can customize the widget’s appearance by:
 
   ```css
   :root {
-    --feedbackfin-primary-color: #007aff;
-    --feedbackfin-primary-color-text: #fff;
+    --unfeed-primary-color: #007aff;
+    --unfeed-primary-color-text: #fff;
   }
   ```
 
 - Overriding
   [the CSS rules](https://github.com/rowyio/feedbackfin/blob/main/src/form.css).
-  Class names are prefixed with `feedbackfin__`.
+  Class names are prefixed with `unfeed__`.
 
 ## Dark mode
 

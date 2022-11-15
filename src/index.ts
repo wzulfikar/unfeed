@@ -4,46 +4,72 @@ import { createFocusTrap } from "focus-trap";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
 
-export type FeedbackFinConfig = {
+export type UnfeedConfig = {
   url: string;
   user: Record<any, any>;
   disableErrorAlert: boolean;
+  context?: string;
+  footer?: string;
 };
-const config: FeedbackFinConfig = {
+const config: UnfeedConfig = {
   url: "",
   user: {},
   disableErrorAlert: false,
   // Spread user config when loaded
-  ...(window as any).feedbackfin?.config,
+  ...(window as any).unfeed?.config,
 };
 
 function init() {
   const styleElement = document.createElement("style");
-  styleElement.id = "feedbackfin__css";
+  styleElement.id = "unfeed__css";
   styleElement.innerHTML = formCSS;
 
   document.head.insertBefore(styleElement, document.head.firstChild);
 
-  document.querySelectorAll("[data-feedbackfin-button]").forEach((el) => {
-    el.addEventListener("click", open);
+  document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+
+    // Infer config from data attributes
+    const dataset = el.dataset;
+    if (dataset.unfeedButton) config.url = dataset.unfeedButton;
+    if (dataset.unfeedName) config.user.name = dataset.unfeedName;
+    if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
+    if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+    if (dataset.unfeedFooter !== undefined)
+      config.footer = dataset.unfeedFooter;
+    if (dataset.unfeedOpen !== undefined) open(el);
+
+    // Customize primary color
+    if (dataset.unfeedPrimaryColor) {
+      (document.querySelector(":root") as HTMLElement).style.setProperty(
+        "--unfeed-primary-color",
+        dataset.unfeedPrimaryColor
+      );
+    }
+
+    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
   });
 }
 window.addEventListener("load", init);
 
 const containerElement = document.createElement("div");
-containerElement.id = "feedbackfin__container";
+containerElement.id = "unfeed__container";
 
 const trap = createFocusTrap(containerElement, {
-  initialFocus: "#feedbackfin__radio--issue",
+  initialFocus: "#unfeed__radio--issue",
   allowOutsideClick: true,
 });
 
-function open(e: Event) {
+function open(target: HTMLElement) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML;
   containerElement.style.display = "block";
 
-  const target = (e?.target as HTMLElement) || document.body;
+  if (config.footer !== undefined) {
+    containerElement.querySelector("#unfeed__footer")!.innerHTML =
+      config.footer;
+  }
+
   computePosition(target, containerElement, {
     placement: "bottom",
     middleware: [flip(), shift({ crossAxis: true, padding: 8 })],
@@ -56,44 +82,34 @@ function open(e: Event) {
   });
 
   trap.activate();
+  document.getElementById("unfeed__close")!.addEventListener("click", close);
+  Array.from(containerElement.getElementsByClassName("unfeed__radio")).forEach(
+    (el) => el.addEventListener("change", changeType)
+  );
 
-  document
-    .getElementById("feedbackfin__close")!
-    .addEventListener("click", close);
-
-  Array.from(
-    containerElement.getElementsByClassName("feedbackfin__radio")
-  ).forEach((el) => {
-    el.addEventListener("change", changeType);
-  });
-
-  document
-    .getElementById("feedbackfin__form")!
-    .addEventListener("submit", submit);
+  document.getElementById("unfeed__form")!.addEventListener("submit", submit);
 }
 
 function close() {
   trap.deactivate();
-
   containerElement.innerHTML = "";
 
   containerElement.remove();
-  containerElement.removeAttribute("data-feedback-type");
+  containerElement.removeAttribute("data-unfeed-type");
   containerElement.removeAttribute("data-success");
 }
 
 function changeType(e: Event) {
   const value = (e.target as HTMLInputElement).value;
+  containerElement.setAttribute("data-unfeed-type", value);
 
-  containerElement.setAttribute("data-feedback-type", value);
+  let placeholder = "I think..";
+  if (value === "issue") placeholder = "I'm having an issue with..";
+  if (value === "idea") placeholder = "I'd like to see..";
 
-  let placeholder = "I think…";
-  if (value === "issue") placeholder = "I’m having an issue with…";
-  else if (value === "idea") placeholder = "I’d like to see…";
-
-  document
-    .getElementById("feedbackfin__message")
-    ?.setAttribute("placeholder", placeholder);
+  const feedback = document.getElementById("unfeed__message") as HTMLElement;
+  feedback.setAttribute("placeholder", placeholder);
+  feedback.focus();
 }
 
 function submit(e: Event) {
@@ -101,15 +117,15 @@ function submit(e: Event) {
   const target = e.target as HTMLFormElement;
 
   if (!config.url) {
-    console.error("Feedback Fin: No URL provided");
+    console.error("Unfeed: No URL provided");
     if (!config.disableErrorAlert)
       alert("Could not send feedback: No URL provided");
     return;
   }
 
-  const submitElement = document.getElementById("feedbackfin__submit")!;
+  const submitElement = document.getElementById("unfeed__submit")!;
   submitElement.setAttribute("disabled", "");
-  submitElement.innerHTML = "Sending…";
+  submitElement.innerHTML = "Sending..";
 
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -118,6 +134,7 @@ function submit(e: Event) {
     ...config.user,
     feedbackType: (target.elements as any).feedbackType.value,
     message: (target.elements as any).message.value,
+    context: config.context,
     timestamp: Date.now(),
   };
 
@@ -126,11 +143,9 @@ function submit(e: Event) {
     headers: myHeaders,
     body: JSON.stringify(data),
   })
-    .then(() => {
-      containerElement.setAttribute("data-success", "");
-    })
+    .then(() => containerElement.setAttribute("data-success", ""))
     .catch((e) => {
-      console.error("Feedback Fin:", e);
+      console.error("Unfeed:", e);
       if (!config.disableErrorAlert)
         alert(`Could not send feedback: ${e.message}`);
     });
@@ -138,7 +153,7 @@ function submit(e: Event) {
   return false;
 }
 
-const feedbackfin = { init, open, changeType, close, submit, config };
-(window as any).feedbackfin = feedbackfin;
+const unfeed = { init, open, changeType, close, submit, config };
+(window as any).unfeed = unfeed;
 
-export default feedbackfin;
+export default unfeed;

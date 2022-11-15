@@ -1,8 +1,8 @@
 <head>
   <style>
     :root {
-      /* --feedbackfin-primary-color: #007aff; */
-      /* --feedbackfin-primary-color-text: #fff; */
+      /* --unfeed-primary-color: #007aff; */
+      /* --unfeed-primary-color-text: #fff; */
     }
 
     body {
@@ -22,7 +22,16 @@
   <button onclick="toggleTheme()" style="position: fixed; top: 8px; left: 8px">
     Toggle theme
   </button>
-  <button data-feedbackfin-button>Feedback</button>
+  <button
+    data-unfeed-button=""
+    data-unfeed-name="John Doe"
+    data-unfeed-email="john@example.com"
+    data-unfeed-primary-color="#31ba64"
+    data-unfeed-context="test at localhost"
+    data-unfeed-footer="Hello world!"
+  >
+    Send Feedback
+  </button>
 
   <script src="./dist/index.umd.js"></script>
   <script>
@@ -37,6 +46,6 @@
 
     // document
     //   .querySelector("button")
-    //   .addEventListener("click", feedbackfin.open);
+    //   .addEventListener("click", unfeed.open);
   </script>
 </body>
