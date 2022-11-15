@@ -25,6 +25,9 @@ const config: UnfeedConfig = {
 const defaultLocale = {
   ns: "unfeed",
   title: "What's on your mind?",
+  issueLabel: "Issue",
+  ideaLabel: "Idea",
+  otherLabel: "Other",
   issueIcon: "&#128064;", // 👀 (https://emojiguide.org/eyes)
   ideaIcon: "&#128161;", // 💡 (https://emojiguide.org/light-bulb)
   otherIcon: "&#128173;", // 💭 (https://emojiguide.org/thought-balloon)
