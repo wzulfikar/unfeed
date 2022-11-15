@@ -159,7 +159,7 @@ function submit(e: Event, dataset: Record<string, string>) {
   fetch(config.url, {
     headers: { "Content-Type": "application/json" },
     method: "POST",
-    mode: dataset.unfeedCorsMode as RequestMode | undefined,
+    mode: (dataset.unfeedCorsMode || "no-cors") as RequestMode | undefined,
     body: JSON.stringify(data),
   })
     .then(() => containerElement.setAttribute("data-success", ""))
