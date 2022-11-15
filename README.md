@@ -1,5 +1,5 @@
 <h1 align=center>Unfeed</h1>
-<p align=center>A fork of <a href="https://github.com/rowyio/feedbackfin">Feedback Fin</a> with more customization. Refer to <a href="https://github.com/wzulfikar/unfeed/pull/1">PR #1</a> to see what changed.</p>
+<p align=center>A fork of <a href="https://github.com/rowyio/feedbackfin">Feedback Fin</a> with more customization. Refer to <a href="https://github.com/wzulfikar/unfeed/pull/1">PR #1</a> (and subsequent PRs) to see what changed.</p>
 
 ---
 
