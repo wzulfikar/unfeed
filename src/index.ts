@@ -23,9 +23,8 @@ function init() {
       // Infer config from dataset
       const dataset = el.dataset;
       if (dataset.unfeedOpen !== undefined) open(el);
-      if (dataset.unfeedFooter !== undefined) {
+      if (dataset.unfeedFooter !== undefined)
         config.footer = dataset.unfeedFooter;
-      }
 
       // Customize primary color
       if (dataset.unfeedPrimaryColor) {
@@ -40,7 +39,7 @@ function init() {
           open(e.target as HTMLElement)
         );
       } else {
-        buildHtml(containerElement, { parent: el, parentIsButton: false });
+        buildHtml(containerElement, el);
       }
     });
 }
@@ -53,7 +52,8 @@ const trap = createFocusTrap(containerElement, {
 
 function buildHtml(
   containerElement: HTMLDivElement,
-  { parent = document.body, parentIsButton = true } = {}
+  parent: HTMLElement,
+  getDataset: () => DOMStringMap = () => parent.dataset
 ) {
   parent.appendChild(containerElement);
   containerElement.innerHTML = formHTML(ns, config.locale);
@@ -90,7 +90,7 @@ function buildHtml(
 
   (containerElement as Element)
     .querySelector(`#${ns}form`)!
-    .addEventListener("submit", (e) => submit(e, parent));
+    .addEventListener("submit", (e) => submit(e, getDataset));
 
   // Customize footer
   if (mergeConfig.footer !== undefined) {
@@ -100,7 +100,7 @@ function buildHtml(
 }
 
 function open(target: HTMLElement) {
-  buildHtml(containerElement);
+  buildHtml(containerElement, document.body, () => target.dataset);
 
   computePosition(target, containerElement, {
     placement: "bottom",
@@ -112,7 +112,6 @@ function open(target: HTMLElement) {
       top: `${y}px`,
     });
   });
-
   trap.activate();
 }
 
@@ -123,10 +122,7 @@ function close() {
 
   const parentIsContainer = containerElement.parentElement?.dataset.unfeed;
   if (parentIsContainer) {
-    buildHtml(containerElement, {
-      parent: containerElement.parentElement,
-      parentIsButton: false,
-    });
+    buildHtml(containerElement, containerElement.parentElement);
   } else {
     containerElement.innerHTML = "";
     containerElement.style.display = "none";
@@ -142,12 +138,12 @@ function changeType(e: Event) {
   feedback.focus();
 }
 
-function submit(e: Event, parent: HTMLElement) {
+function submit(e: Event, getDataset: () => DOMStringMap) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
   // Merge latest values from dataset to config
-  const dataset = parent.dataset as Record<string, string>;
+  const dataset = getDataset() as Record<string, string>;
   if (dataset.unfeedName) config.user.name = dataset.unfeedName;
   if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
   if (dataset.unfeedContext) config.context = dataset.unfeedContext;
