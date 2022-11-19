@@ -11,8 +11,8 @@
     <a target="_blank" rel="noopener" href="https://twitter.com/rowyio"><b>Twitter</b></a>
 </p>
 
-[![npm version](https://badgen.net/npm/v/feedbackfin)](https://www.npmjs.com/package/feedbackfin)
-[![Package size](https://badgen.net/bundlephobia/minzip/feedbackfin)](https://bundlephobia.com/result?p=feedbackfin)
+[![npm version](https://badgen.net/npm/v/unfeed)](https://www.npmjs.com/package/unfeed)
+[![Package size](https://badgen.net/bundlephobia/minzip/unfeed)](https://bundlephobia.com/result?p=unfeed)
 
 <a href="https://feedbackfin.com" target="_blank" rel="noopener">
   <img src="https://user-images.githubusercontent.com/27017118/160980505-edf2c161-730d-4ba1-9ae2-2a0a01454954.gif" width="420" height="380" alt="Demo GIF" />
@@ -34,9 +34,9 @@
 
    ```html
    <script>
-     window.feedbackfin = { config: {}, ...window.feedbackfin };
-     window.feedbackfin.config.url = "https://rowy-hooks.run.app/wh/...";
-     window.feedbackfin.config.user = { name: "...", email: "..." };
+     window.unfeed = { config: {}, ...window.unfeed };
+     window.unfeed.config.url = "https://rowy-hooks.run.app/wh/...";
+     window.unfeed.config.user = { name: "...", email: "..." };
    </script>
    ```
 
@@ -60,7 +60,7 @@ End-to-end video instructions on the
 
 ## Options
 
-Options are set in the `window.feedbackfin.config` object:
+Options are set in the `window.unfeed.config` object:
 
 ### `url`
 
@@ -77,7 +77,7 @@ overwritten by form values.
 Typically:
 
 ```js
-window.feedbackfin.config.user = {
+window.unfeed.config.user = {
   name: "...",
   email: "...",
 };
