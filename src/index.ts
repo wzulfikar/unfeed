@@ -1,107 +1,106 @@
 import { computePosition, flip, shift } from "@floating-ui/dom";
 import { createFocusTrap } from "focus-trap";
 
+import { config, ns } from "./config";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
 
-export type UnfeedConfig = {
-  url: string;
-  user: Record<any, any>;
-  disableErrorAlert: boolean;
-  context?: string;
-  footer?: string;
-  payload?: Record<string, string>;
-  locale?: typeof defaultLocale;
-};
-const config: UnfeedConfig = {
-  url: "",
-  user: {},
-  disableErrorAlert: false,
-  // Spread user config when loaded
-  locale: (window as any).unfeed?.locale,
-  ...(window as any).unfeed?.config,
-};
-
-const defaultLocale = {
-  ns: "unfeed",
-  title: "What's on your mind?",
-  issueLabel: "Issue",
-  ideaLabel: "Idea",
-  otherLabel: "Other",
-  issueIcon: "&#128064;", // 👀 (https://emojiguide.org/eyes)
-  ideaIcon: "&#128161;", // 💡 (https://emojiguide.org/light-bulb)
-  otherIcon: "&#128173;", // 💭 (https://emojiguide.org/thought-balloon)
-  placeholder: {
-    issue: "I'm having an issue with..",
-    idea: "I think..",
-    other: "I'd like to see..",
-  },
-  submitText: "Send",
-  submitLoadingText: "Sending..",
-  thankyouText: "Thanks for your feedback!",
-};
-
-// Merge default locale with config
-const locale = {
-  ...defaultLocale,
-  ...config.locale,
-  placeholder: {
-    ...defaultLocale.placeholder,
-    ...config.locale?.placeholder,
-  },
-};
+const containerElement = document.createElement("div");
+containerElement.id = `${ns}container`;
 
 function init() {
   const styleElement = document.createElement("style");
-  styleElement.id = "unfeed__css";
+  styleElement.id = `${ns}css`;
   styleElement.innerHTML = formCSS;
 
   document.head.insertBefore(styleElement, document.head.firstChild);
 
-  document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
-    if (!(el instanceof HTMLElement)) return;
+  document
+    .querySelectorAll("[data-unfeed],[data-unfeed-button]")
+    .forEach((el) => {
+      if (!(el instanceof HTMLElement)) return;
 
-    // Infer config from dataset
-    const dataset = el.dataset;
-    if (dataset.unfeedOpen !== undefined) open(el);
-    if (dataset.unfeedFooter !== undefined)
-      config.footer = dataset.unfeedFooter;
+      // Infer config from dataset
+      const dataset = el.dataset;
+      if (dataset.unfeedOpen !== undefined) open(el);
+      if (dataset.unfeedFooter !== undefined)
+        config.footer = dataset.unfeedFooter;
 
-    // Customize primary color
-    if (dataset.unfeedPrimaryColor) {
-      (document.querySelector(":root") as HTMLElement).style.setProperty(
-        "--unfeed-primary-color",
-        dataset.unfeedPrimaryColor
-      );
-    }
+      // Customize primary color
+      if (dataset.unfeedPrimaryColor) {
+        (document.querySelector(":root") as HTMLElement).style.setProperty(
+          "--unfeed-primary-color",
+          dataset.unfeedPrimaryColor
+        );
+      }
 
-    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
-  });
+      if (dataset.unfeedButton) {
+        el.addEventListener("click", (e: Event) =>
+          open(e.target as HTMLElement)
+        );
+      } else {
+        buildHtml(containerElement, el);
+      }
+    });
 }
 window.addEventListener("load", init);
 
-const containerElement = document.createElement("div");
-containerElement.id = "unfeed__container";
-
 const trap = createFocusTrap(containerElement, {
-  initialFocus: "#unfeed__radio--issue",
+  initialFocus: `#${ns}radio--0`,
   allowOutsideClick: true,
 });
 
-function renderHtml(containerElement: HTMLDivElement) {
-  document.body.appendChild(containerElement);
-  containerElement.innerHTML = formHTML(locale);
+function buildHtml(
+  containerElement: HTMLDivElement,
+  parent: HTMLElement,
+  getDataset: () => DOMStringMap = () => parent.dataset
+) {
+  parent.appendChild(containerElement);
+  containerElement.innerHTML = formHTML(ns, config.locale);
   containerElement.style.display = "block";
+  containerElement
+    .querySelector(`#${ns}close`)!
+    .addEventListener("click", close);
+
+  const mergeConfig = { ...config, ...(window as any).unfeed } as typeof config;
+
+  // Build options
+  const optionsElement = containerElement.querySelector(
+    `#${ns}radio-group`
+  ) as HTMLElement;
+  optionsElement.innerHTML = mergeConfig.options
+    .map(({ icon, label, name, placeholder }, i) => [
+      `<input
+      class="${ns}radio"
+      type="radio"
+      id="${ns}radio--${i}"
+      name="feedbackType"
+      value="${name || label}"
+      data-placeholder="${placeholder || ""}"
+      required />
+    <label for="${ns}radio--${i}" class="${ns}button ${ns}radio-label">
+      ${icon ? `<span class="${ns}radio-icon">${icon}</span>` : ""}${label}
+    </label>`,
+    ])
+    .join("");
+
+  Array.from(optionsElement.getElementsByClassName(`${ns}radio`)).forEach(
+    (el) => el.addEventListener("change", changeType)
+  );
+
+  (containerElement as Element)
+    .querySelector(`#${ns}form`)!
+    .addEventListener("submit", (e) => submit(e, getDataset));
 
   // Customize footer
-  if (config.footer !== undefined) {
-    containerElement.querySelector("#unfeed__footer")!.innerHTML =
-      config.footer;
+  if (mergeConfig.footer !== undefined) {
+    containerElement.querySelector(`#${ns}footer`)!.innerHTML =
+      mergeConfig.footer;
   }
 }
 
 function open(target: HTMLElement) {
-  renderHtml(containerElement);
+  buildHtml(containerElement, document.body, () => target.dataset);
 
   computePosition(target, containerElement, {
     placement: "bottom",
@@ -113,47 +112,45 @@ function open(target: HTMLElement) {
       top: `${y}px`,
     });
   });
-
   trap.activate();
-  document.getElementById("unfeed__close")!.addEventListener("click", close);
-  Array.from(containerElement.getElementsByClassName("unfeed__radio")).forEach(
-    (el) => el.addEventListener("change", changeType)
-  );
-
-  document
-    .getElementById("unfeed__form")!
-    .addEventListener("submit", (e) => submit(e, target));
 }
 
 function close() {
   trap.deactivate();
-  containerElement.innerHTML = "";
-
-  containerElement.remove();
   containerElement.removeAttribute("data-unfeed-type");
   containerElement.removeAttribute("data-success");
+
+  const parentIsContainer = containerElement.parentElement?.dataset.unfeed;
+  if (parentIsContainer) {
+    buildHtml(containerElement, containerElement.parentElement);
+  } else {
+    containerElement.innerHTML = "";
+    containerElement.style.display = "none";
+  }
 }
 
 function changeType(e: Event) {
-  const value = (e.target as HTMLInputElement)
-    .value as keyof typeof locale.placeholder;
-  containerElement.setAttribute("data-unfeed-type", value);
+  const inputElement = e.target as HTMLInputElement;
+  containerElement.setAttribute("data-unfeed-type", inputElement.value);
 
-  const feedback = document.getElementById("unfeed__message") as HTMLElement;
-  feedback.setAttribute("placeholder", locale.placeholder[value]);
+  const feedback = document.getElementById(`${ns}message`) as HTMLElement;
+  feedback.setAttribute("placeholder", inputElement.dataset.placeholder || "");
   feedback.focus();
 }
 
-function submit(e: Event, buttonElement: HTMLElement) {
+function submit(e: Event, getDataset: () => DOMStringMap) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
   // Merge latest values from dataset to config
-  const dataset = buttonElement.dataset as Record<string, string>;
-  if (dataset.unfeedButton) config.url = dataset.unfeedButton;
+  const dataset = getDataset() as Record<string, string>;
   if (dataset.unfeedName) config.user.name = dataset.unfeedName;
   if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
   if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+
+  // Override url with dataset if provided
+  const overrideUrl = dataset.unfeed || dataset.unfeedButton;
+  if (overrideUrl) config.url = overrideUrl;
 
   // If specified, include arbitrary payload as key value
   const prefix = "unfeedPayload";
@@ -173,9 +170,9 @@ function submit(e: Event, buttonElement: HTMLElement) {
     return;
   }
 
-  const submitElement = document.getElementById("unfeed__submit")!;
+  const submitElement = document.getElementById(`${ns}submit`)!;
   submitElement.setAttribute("disabled", "");
-  submitElement.innerHTML = locale.submitLoadingText;
+  submitElement.innerHTML = config.locale.submitLoadingText;
 
   const data = {
     ...config.user,
@@ -192,11 +189,18 @@ function submit(e: Event, buttonElement: HTMLElement) {
     mode: (dataset.unfeedCorsMode || "no-cors") as RequestMode | undefined,
     body: JSON.stringify(data),
   })
-    .then(() => containerElement.setAttribute("data-success", ""))
+    .then(() => {
+      containerElement.setAttribute("data-success", "");
+      (document.getElementById(`${ns}message`) as HTMLInputElement)!.value = "";
+    })
     .catch((e) => {
       config.disableErrorAlert
         ? console.error("Unfeed:", e)
         : alert(`Could not send feedback: ${e.message}`);
+    })
+    .finally(() => {
+      submitElement.removeAttribute("disabled");
+      submitElement.innerHTML = config.locale.submitText;
     });
   return false;
 }
