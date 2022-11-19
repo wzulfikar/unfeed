@@ -1,6 +1,6 @@
 <button
-  id="${t.ns}close"
-  class="${t.ns}icon-button"
+  id="${ns}close"
+  class="${ns}icon-button"
   type="reset"
   aria-label="Close"
 >
@@ -20,64 +20,28 @@
   </svg>
 </button>
 
-<form id="${t.ns}form">
-  <h1 id="${t.ns}title">${t.title}</h1>
+<form id="${ns}form">
+  <h1 id="${ns}title">${t.title}</h1>
 
-  <div id="${t.ns}radio-group" role="radiogroup" aria-label="Feedback type">
-    <input
-      class="${t.ns}radio"
-      type="radio"
-      id="${t.ns}radio--issue"
-      name="feedbackType"
-      value="issue"
-      required
-    />
-    <label for="${t.ns}radio--issue" class="${t.ns}button ${t.ns}radio-label">
-      <span class="${t.ns}radio-icon">${t.issueIcon}</span> ${t.issueLabel}
-    </label>
+  <div id="${ns}radio-group" role="radiogroup" aria-label="Feedback type"></div>
 
-    <input
-      class="${t.ns}radio"
-      type="radio"
-      id="${t.ns}radio--idea"
-      name="feedbackType"
-      value="idea"
-      required
-    />
-    <label for="${t.ns}radio--idea" class="${t.ns}button ${t.ns}radio-label">
-      <span class="${t.ns}radio-icon">${t.ideaIcon}</span> ${t.ideaLabel}
-    </label>
-
-    <input
-      class="${t.ns}radio"
-      type="radio"
-      id="${t.ns}radio--other"
-      name="feedbackType"
-      value="other"
-      required
-    />
-    <label for="${t.ns}radio--other" class="${t.ns}button ${t.ns}radio-label">
-      <span class="${t.ns}radio-icon">${t.otherIcon}</span> ${t.otherLabel}
-    </label>
-  </div>
-
-  <div id="${t.ns}step2">
+  <div id="${ns}step2">
     <textarea
-      id="${t.ns}message"
+      id="${ns}message"
       name="message"
       type="text"
-      placeholder="${t.placeholder.other}"
+      placeholder=""
       required
       rows="2"
       aria-label="Message"
     ></textarea>
-    <button id="${t.ns}submit" class="${t.ns}button" type="submit">
+    <button id="${ns}submit" class="${ns}button" type="submit">
       ${t.submitText}
     </button>
   </div>
 </form>
 
-<div id="${t.ns}success">
+<div id="${ns}success">
   <svg viewBox="0 0 18 18" width="3em" height="3em" role="presentation">
     <polyline
       stroke-width="2"
@@ -85,10 +49,10 @@
       stroke-linejoin="round"
       points="2.705 8.29 7 12.585 15.295 4.29"
       fill="none"
-      id="${t.ns}check"
+      id="${ns}check"
     />
   </svg>
   ${t.thankyouText}
 </div>
 
-<div id="${t.ns}footer"></div>
+<div id="${ns}footer"></div>

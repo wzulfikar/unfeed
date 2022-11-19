@@ -1,7 +1,7 @@
 import { computePosition, flip, shift } from "@floating-ui/dom";
 import { createFocusTrap } from "focus-trap";
 
-import { config, locale, ns } from "./config";
+import { config, ns } from "./config";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
 
@@ -18,8 +18,9 @@ function init() {
     // Infer config from dataset
     const dataset = el.dataset;
     if (dataset.unfeedOpen !== undefined) open(el);
-    if (dataset.unfeedFooter !== undefined)
+    if (dataset.unfeedFooter !== undefined) {
       config.footer = dataset.unfeedFooter;
+    }
 
     // Customize primary color
     if (dataset.unfeedPrimaryColor) {
@@ -38,18 +39,42 @@ const containerElement = document.createElement("div");
 containerElement.id = `${ns}container`;
 
 const trap = createFocusTrap(containerElement, {
-  initialFocus: `#${ns}radio--issue`,
+  initialFocus: `#${ns}radio--0`,
   allowOutsideClick: true,
 });
 
 function buildHtml(containerElement: HTMLDivElement) {
   document.body.appendChild(containerElement);
-  containerElement.innerHTML = formHTML(locale);
+  containerElement.innerHTML = formHTML(ns, config.locale);
   containerElement.style.display = "block";
 
+  const mergeConfig = { ...config, ...(window as any).unfeed } as typeof config;
+
+  const optionsElement = containerElement.querySelector(
+    `#${ns}radio-group`
+  ) as HTMLElement;
+  optionsElement.innerHTML = mergeConfig.options
+    .map(({ icon, label, name, placeholder }, i) => [
+      `<div>
+    <input
+      class="${ns}radio"
+      type="radio"
+      id="${ns}radio--${i}"
+      name="feedbackType"
+      value="${name || label}" 
+      data-placeholder="${placeholder || ""}"
+      required />
+    <label for="${ns}radio--${i}" class="${ns}button ${ns}radio-label">
+      ${icon ? `<span class="${ns}radio-icon">${icon}</span>` : ""}${label}
+    </label>
+  </div>`,
+    ])
+    .join("");
+
   // Customize footer
-  if (config.footer !== undefined) {
-    containerElement.querySelector(`#${ns}footer`)!.innerHTML = config.footer;
+  if (mergeConfig.footer !== undefined) {
+    containerElement.querySelector(`#${ns}footer`)!.innerHTML =
+      mergeConfig.footer;
   }
 }
 
@@ -88,12 +113,11 @@ function close() {
 }
 
 function changeType(e: Event) {
-  const value = (e.target as HTMLInputElement)
-    .value as keyof typeof locale.placeholder;
-  containerElement.setAttribute("data-unfeed-type", value as string);
+  const inputElement = e.target as HTMLInputElement;
+  containerElement.setAttribute("data-unfeed-type", inputElement.value);
 
   const feedback = document.getElementById(`${ns}message`) as HTMLElement;
-  feedback.setAttribute("placeholder", locale.placeholder[value]);
+  feedback.setAttribute("placeholder", inputElement.dataset.placeholder || "");
   feedback.focus();
 }
 
@@ -128,7 +152,7 @@ function submit(e: Event, buttonElement: HTMLElement) {
 
   const submitElement = document.getElementById(`${ns}submit`)!;
   submitElement.setAttribute("disabled", "");
-  submitElement.innerHTML = locale.submitLoadingText;
+  submitElement.innerHTML = config.locale.submitLoadingText;
 
   const data = {
     ...config.user,

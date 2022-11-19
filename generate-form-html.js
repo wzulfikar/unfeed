@@ -8,5 +8,5 @@ const html = minify(readFileSync("./src/form.html").toString(), {
 
 writeFileSync(
   "./src/form-html.ts",
-  ["export const formHTML = (t: any) => `", html, "`;"].join("")
+  ["export const formHTML = (ns: string, t: any) => `", html, "`;"].join("")
 );
