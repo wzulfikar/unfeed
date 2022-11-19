@@ -1,4 +1,7 @@
 type FeedbackType = {
+  /**
+   * Text to show in the form
+   */
   label: string;
 
   /**
