@@ -191,6 +191,7 @@ function submit(e: Event, getDataset: () => DOMStringMap) {
   })
     .then(() => {
       containerElement.setAttribute("data-success", "");
+      (document.getElementById(`${ns}message`) as HTMLInputElement)!.value = "";
     })
     .catch((e) => {
       config.disableErrorAlert
@@ -200,8 +201,6 @@ function submit(e: Event, getDataset: () => DOMStringMap) {
     .finally(() => {
       submitElement.removeAttribute("disabled");
       submitElement.innerHTML = config.locale.submitText;
-
-      (document.getElementById(`${ns}message`) as HTMLInputElement)!.value = "";
     });
   return false;
 }
