@@ -8,8 +8,6 @@
     body {
       font-family: system-ui;
       display: grid;
-      place-items: flex-end;
-      height: 200vh;
     }
 
     * {
@@ -30,6 +28,14 @@
   <button onclick="toggleTheme()" style="position: fixed; top: 8px; left: 8px">
     Toggle theme
   </button>
+  <div style="margin-top: 1em">
+    <h1>Container</h1>
+    <div
+      data-unfeed="http://mockbin.org/bin/2b14c17d-71e9-43b6-914e-efb65df8409c"
+      style="display: flex; justify-content: center"
+    />
+  </div>
+
   <!-- See the submissions here: http://mockbin.org/bin/2b14c17d-71e9-43b6-914e-efb65df8409c/log -->
   <button
     data-unfeed-button="http://mockbin.org/bin/2b14c17d-71e9-43b6-914e-efb65df8409c"
@@ -41,6 +47,7 @@
     data-unfeed-payload-is-user="true"
     data-unfeed-payload-is-logged-in="false"
     data-unfeed-cors-mode="no-cors"
+    style="position: absolute; bottom: 1em; right: 1em"
   >
     Send Feedback
   </button>

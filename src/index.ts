@@ -5,6 +5,9 @@ import { config, ns } from "./config";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
 
+const containerElement = document.createElement("div");
+containerElement.id = `${ns}container`;
+
 function init() {
   const styleElement = document.createElement("style");
   styleElement.id = "unfeed__css";
@@ -12,44 +15,50 @@ function init() {
 
   document.head.insertBefore(styleElement, document.head.firstChild);
 
-  document.querySelectorAll("[data-unfeed-button]").forEach((el) => {
-    if (!(el instanceof HTMLElement)) return;
+  document
+    .querySelectorAll("[data-unfeed],[data-unfeed-button]")
+    .forEach((el) => {
+      if (!(el instanceof HTMLElement)) return;
 
-    // Infer config from dataset
-    const dataset = el.dataset;
-    if (dataset.unfeedOpen !== undefined) open(el);
-    if (dataset.unfeedFooter !== undefined) {
-      config.footer = dataset.unfeedFooter;
-    }
+      // Infer config from dataset
+      const dataset = el.dataset;
+      if (dataset.unfeedOpen !== undefined) open(el);
+      if (dataset.unfeedFooter !== undefined) {
+        config.footer = dataset.unfeedFooter;
+      }
 
-    // Customize primary color
-    if (dataset.unfeedPrimaryColor) {
-      (document.querySelector(":root") as HTMLElement).style.setProperty(
-        "--unfeed-primary-color",
-        dataset.unfeedPrimaryColor
-      );
-    }
+      // Customize primary color
+      if (dataset.unfeedPrimaryColor) {
+        (document.querySelector(":root") as HTMLElement).style.setProperty(
+          "--unfeed-primary-color",
+          dataset.unfeedPrimaryColor
+        );
+      }
 
-    el.addEventListener("click", (e: Event) => open(e.target as HTMLElement));
-  });
+      if (dataset.unfeedButton) {
+        el.addEventListener("click", (e: Event) =>
+          open(e.target as HTMLElement)
+        );
+      } else {
+        buildHtml(containerElement, el);
+      }
+    });
 }
 window.addEventListener("load", init);
-
-const containerElement = document.createElement("div");
-containerElement.id = `${ns}container`;
 
 const trap = createFocusTrap(containerElement, {
   initialFocus: `#${ns}radio--0`,
   allowOutsideClick: true,
 });
 
-function buildHtml(containerElement: HTMLDivElement) {
-  document.body.appendChild(containerElement);
+function buildHtml(containerElement: HTMLDivElement, parent = document.body) {
+  parent.appendChild(containerElement);
   containerElement.innerHTML = formHTML(ns, config.locale);
   containerElement.style.display = "block";
 
   const mergeConfig = { ...config, ...(window as any).unfeed } as typeof config;
 
+  // Build options
   const optionsElement = containerElement.querySelector(
     `#${ns}radio-group`
   ) as HTMLElement;
@@ -60,14 +69,19 @@ function buildHtml(containerElement: HTMLDivElement) {
       type="radio"
       id="${ns}radio--${i}"
       name="feedbackType"
-      value="${name || label}" 
+      value="${name || label}"
       data-placeholder="${placeholder || ""}"
+      onchange="${changeType}"
       required />
     <label for="${ns}radio--${i}" class="${ns}button ${ns}radio-label">
       ${icon ? `<span class="${ns}radio-icon">${icon}</span>` : ""}${label}
     </label>`,
     ])
     .join("");
+
+  Array.from(optionsElement.getElementsByClassName(`${ns}radio`)).forEach(
+    (el) => el.addEventListener("change", changeType)
+  );
 
   // Customize footer
   if (mergeConfig.footer !== undefined) {
@@ -91,10 +105,9 @@ function open(target: HTMLElement) {
   });
 
   trap.activate();
-  document.getElementById(`${ns}close`)!.addEventListener("click", close);
-  Array.from(containerElement.getElementsByClassName(`${ns}radio`)).forEach(
-    (el) => el.addEventListener("change", changeType)
-  );
+  const btnClose = document.getElementById(`${ns}close`)!;
+  btnClose.addEventListener("click", close);
+  btnClose.style.display = "block";
 
   document
     .getElementById(`${ns}form`)!
@@ -105,7 +118,7 @@ function close() {
   trap.deactivate();
   containerElement.innerHTML = "";
 
-  containerElement.remove();
+  containerElement.style.display = "none";
   containerElement.removeAttribute("data-unfeed-type");
   containerElement.removeAttribute("data-success");
 }
