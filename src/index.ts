@@ -10,7 +10,7 @@ containerElement.id = `${ns}container`;
 
 function init() {
   const styleElement = document.createElement("style");
-  styleElement.id = "unfeed__css";
+  styleElement.id = `${ns}css`;
   styleElement.innerHTML = formCSS;
 
   document.head.insertBefore(styleElement, document.head.firstChild);
@@ -40,7 +40,7 @@ function init() {
           open(e.target as HTMLElement)
         );
       } else {
-        buildHtml(containerElement, el);
+        buildHtml(containerElement, { parent: el, parentIsButton: false });
       }
     });
 }
@@ -51,10 +51,16 @@ const trap = createFocusTrap(containerElement, {
   allowOutsideClick: true,
 });
 
-function buildHtml(containerElement: HTMLDivElement, parent = document.body) {
+function buildHtml(
+  containerElement: HTMLDivElement,
+  { parent = document.body, parentIsButton = true } = {}
+) {
   parent.appendChild(containerElement);
   containerElement.innerHTML = formHTML(ns, config.locale);
   containerElement.style.display = "block";
+  containerElement
+    .querySelector(`#${ns}close`)!
+    .addEventListener("click", close);
 
   const mergeConfig = { ...config, ...(window as any).unfeed } as typeof config;
 
@@ -71,7 +77,6 @@ function buildHtml(containerElement: HTMLDivElement, parent = document.body) {
       name="feedbackType"
       value="${name || label}"
       data-placeholder="${placeholder || ""}"
-      onchange="${changeType}"
       required />
     <label for="${ns}radio--${i}" class="${ns}button ${ns}radio-label">
       ${icon ? `<span class="${ns}radio-icon">${icon}</span>` : ""}${label}
@@ -82,6 +87,10 @@ function buildHtml(containerElement: HTMLDivElement, parent = document.body) {
   Array.from(optionsElement.getElementsByClassName(`${ns}radio`)).forEach(
     (el) => el.addEventListener("change", changeType)
   );
+
+  (containerElement as Element)
+    .querySelector(`#${ns}form`)!
+    .addEventListener("submit", (e) => submit(e, parent));
 
   // Customize footer
   if (mergeConfig.footer !== undefined) {
@@ -105,22 +114,23 @@ function open(target: HTMLElement) {
   });
 
   trap.activate();
-  const btnClose = document.getElementById(`${ns}close`)!;
-  btnClose.addEventListener("click", close);
-  btnClose.style.display = "block";
-
-  document
-    .getElementById(`${ns}form`)!
-    .addEventListener("submit", (e) => submit(e, target));
 }
 
 function close() {
   trap.deactivate();
-  containerElement.innerHTML = "";
-
-  containerElement.style.display = "none";
   containerElement.removeAttribute("data-unfeed-type");
   containerElement.removeAttribute("data-success");
+
+  const parentIsContainer = containerElement.parentElement?.dataset.unfeed;
+  if (parentIsContainer) {
+    buildHtml(containerElement, {
+      parent: containerElement.parentElement,
+      parentIsButton: false,
+    });
+  } else {
+    containerElement.innerHTML = "";
+    containerElement.style.display = "none";
+  }
 }
 
 function changeType(e: Event) {
@@ -132,16 +142,19 @@ function changeType(e: Event) {
   feedback.focus();
 }
 
-function submit(e: Event, buttonElement: HTMLElement) {
+function submit(e: Event, parent: HTMLElement) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
   // Merge latest values from dataset to config
-  const dataset = buttonElement.dataset as Record<string, string>;
-  if (dataset.unfeedButton) config.url = dataset.unfeedButton;
+  const dataset = parent.dataset as Record<string, string>;
   if (dataset.unfeedName) config.user.name = dataset.unfeedName;
   if (dataset.unfeedEmail) config.user.email = dataset.unfeedEmail;
   if (dataset.unfeedContext) config.context = dataset.unfeedContext;
+
+  // Override url with dataset if provided
+  const overrideUrl = dataset.unfeed || dataset.unfeedButton;
+  if (overrideUrl) config.url = overrideUrl;
 
   // If specified, include arbitrary payload as key value
   const prefix = "unfeedPayload";
@@ -180,11 +193,19 @@ function submit(e: Event, buttonElement: HTMLElement) {
     mode: (dataset.unfeedCorsMode || "no-cors") as RequestMode | undefined,
     body: JSON.stringify(data),
   })
-    .then(() => containerElement.setAttribute("data-success", ""))
+    .then(() => {
+      containerElement.setAttribute("data-success", "");
+    })
     .catch((e) => {
       config.disableErrorAlert
         ? console.error("Unfeed:", e)
         : alert(`Could not send feedback: ${e.message}`);
+    })
+    .finally(() => {
+      submitElement.removeAttribute("disabled");
+      submitElement.innerHTML = config.locale.submitText;
+
+      (document.getElementById(`${ns}message`) as HTMLInputElement)!.value = "";
     });
   return false;
 }

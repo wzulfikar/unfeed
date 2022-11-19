@@ -43,7 +43,8 @@
       0 0 0 4px var(--unfeed-focus-color);
   }
 }
-[data-theme*="dark"] {
+[data-theme*="dark"],
+[data-unfeed-theme="dark"] {
   --unfeed-bg-color: #2d2d30;
   --unfeed-text-color: 240, 10%, 90%;
   --unfeed-shadow: rgba(0, 0, 5, 0.24) 0px 0px 0px 1px,
@@ -166,6 +167,9 @@
   transform: scale(0.9);
   transition-duration: 0s;
   opacity: 1;
+}
+[data-unfeed] :not([data-unfeed-type]) .unfeed__icon-button {
+  display: none;
 }
 
 #unfeed__close {
