@@ -193,9 +193,6 @@
   display: flex;
   gap: 0.5rem;
 }
-#unfeed__radio-group > div {
-  flex: 1;
-}
 .unfeed__radio {
   width: 0;
   position: fixed;

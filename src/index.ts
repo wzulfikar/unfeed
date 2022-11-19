@@ -55,8 +55,7 @@ function buildHtml(containerElement: HTMLDivElement) {
   ) as HTMLElement;
   optionsElement.innerHTML = mergeConfig.options
     .map(({ icon, label, name, placeholder }, i) => [
-      `<div>
-    <input
+      `<input
       class="${ns}radio"
       type="radio"
       id="${ns}radio--${i}"
@@ -66,8 +65,7 @@ function buildHtml(containerElement: HTMLDivElement) {
       required />
     <label for="${ns}radio--${i}" class="${ns}button ${ns}radio-label">
       ${icon ? `<span class="${ns}radio-icon">${icon}</span>` : ""}${label}
-    </label>
-  </div>`,
+    </label>`,
     ])
     .join("");
 
