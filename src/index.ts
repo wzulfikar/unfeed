@@ -1,55 +1,9 @@
 import { computePosition, flip, shift } from "@floating-ui/dom";
 import { createFocusTrap } from "focus-trap";
 
+import { config, locale, ns } from "./config";
 import { formHTML } from "./form-html";
 import formCSS from "./form.css";
-
-export type UnfeedConfig = {
-  url: string;
-  user: Record<any, any>;
-  disableErrorAlert: boolean;
-  context?: string;
-  footer?: string;
-  payload?: Record<string, string>;
-  locale?: typeof defaultLocale;
-};
-const config: UnfeedConfig = {
-  url: "",
-  user: {},
-  disableErrorAlert: false,
-  // Spread user config when loaded
-  locale: (window as any).unfeed?.locale,
-  ...(window as any).unfeed?.config,
-};
-
-const defaultLocale = {
-  ns: "unfeed",
-  title: "What's on your mind?",
-  issueLabel: "Issue",
-  ideaLabel: "Idea",
-  otherLabel: "Other",
-  issueIcon: "&#128064;", // 👀 (https://emojiguide.org/eyes)
-  ideaIcon: "&#128161;", // 💡 (https://emojiguide.org/light-bulb)
-  otherIcon: "&#128173;", // 💭 (https://emojiguide.org/thought-balloon)
-  placeholder: {
-    issue: "I'm having an issue with..",
-    idea: "I think..",
-    other: "I'd like to see..",
-  },
-  submitText: "Send",
-  submitLoadingText: "Sending..",
-  thankyouText: "Thanks for your feedback!",
-};
-
-// Merge default locale with config
-const locale = {
-  ...defaultLocale,
-  ...config.locale,
-  placeholder: {
-    ...defaultLocale.placeholder,
-    ...config.locale?.placeholder,
-  },
-};
 
 function init() {
   const styleElement = document.createElement("style");
@@ -81,27 +35,26 @@ function init() {
 window.addEventListener("load", init);
 
 const containerElement = document.createElement("div");
-containerElement.id = "unfeed__container";
+containerElement.id = `${ns}container`;
 
 const trap = createFocusTrap(containerElement, {
-  initialFocus: "#unfeed__radio--issue",
+  initialFocus: `#${ns}radio--issue`,
   allowOutsideClick: true,
 });
 
-function renderHtml(containerElement: HTMLDivElement) {
+function buildHtml(containerElement: HTMLDivElement) {
   document.body.appendChild(containerElement);
   containerElement.innerHTML = formHTML(locale);
   containerElement.style.display = "block";
 
   // Customize footer
   if (config.footer !== undefined) {
-    containerElement.querySelector("#unfeed__footer")!.innerHTML =
-      config.footer;
+    containerElement.querySelector(`#${ns}footer`)!.innerHTML = config.footer;
   }
 }
 
 function open(target: HTMLElement) {
-  renderHtml(containerElement);
+  buildHtml(containerElement);
 
   computePosition(target, containerElement, {
     placement: "bottom",
@@ -115,13 +68,13 @@ function open(target: HTMLElement) {
   });
 
   trap.activate();
-  document.getElementById("unfeed__close")!.addEventListener("click", close);
-  Array.from(containerElement.getElementsByClassName("unfeed__radio")).forEach(
+  document.getElementById(`${ns}close`)!.addEventListener("click", close);
+  Array.from(containerElement.getElementsByClassName(`${ns}radio`)).forEach(
     (el) => el.addEventListener("change", changeType)
   );
 
   document
-    .getElementById("unfeed__form")!
+    .getElementById(`${ns}form`)!
     .addEventListener("submit", (e) => submit(e, target));
 }
 
@@ -137,9 +90,9 @@ function close() {
 function changeType(e: Event) {
   const value = (e.target as HTMLInputElement)
     .value as keyof typeof locale.placeholder;
-  containerElement.setAttribute("data-unfeed-type", value);
+  containerElement.setAttribute("data-unfeed-type", value as string);
 
-  const feedback = document.getElementById("unfeed__message") as HTMLElement;
+  const feedback = document.getElementById(`${ns}message`) as HTMLElement;
   feedback.setAttribute("placeholder", locale.placeholder[value]);
   feedback.focus();
 }
@@ -173,7 +126,7 @@ function submit(e: Event, buttonElement: HTMLElement) {
     return;
   }
 
-  const submitElement = document.getElementById("unfeed__submit")!;
+  const submitElement = document.getElementById(`${ns}submit`)!;
   submitElement.setAttribute("disabled", "");
   submitElement.innerHTML = locale.submitLoadingText;
 
