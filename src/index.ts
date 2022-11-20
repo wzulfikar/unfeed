@@ -22,9 +22,12 @@ function init() {
 
       // Infer config from dataset
       const dataset = el.dataset;
-      if (dataset.unfeedOpen !== undefined) open(el);
-      if (dataset.unfeedFooter !== undefined)
+      if (dataset.unfeedFeatures !== undefined) {
+        config.features = dataset.unfeedFeatures;
+      }
+      if (dataset.unfeedFooter !== undefined) {
         config.footer = dataset.unfeedFooter;
+      }
 
       // Customize primary color
       if (dataset.unfeedPrimaryColor) {
@@ -97,6 +100,30 @@ function buildHtml(
     containerElement.querySelector(`#${ns}footer`)!.innerHTML =
       mergeConfig.footer;
   }
+
+  // Enable image upload
+  if (mergeConfig.features?.includes("upload-image")) {
+    const sizeLimitMB = 4;
+    const fileLabel = containerElement.querySelector(
+      `label[for=${ns}file]`
+    ) as HTMLElement;
+    fileLabel.style.display = "inherit";
+    (
+      containerElement.querySelector(`#${ns}file`) as HTMLInputElement
+    ).onchange = (evt: any) => {
+      const file = evt.target.files[0];
+      if (file.size > 1024 * 1024 * sizeLimitMB) {
+        alert(
+          `Whoops, your image is too large.\nImage size should not exceed ${sizeLimitMB}MB.`
+        );
+        return;
+      }
+      fileLabel.dataset.hasFile = "true";
+      fileLabel.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+      fileLabel.style.backgroundSize = "cover";
+      fileLabel.querySelector("svg")!.style.display = "none";
+    };
+  }
 }
 
 function open(target: HTMLElement) {
@@ -106,7 +133,7 @@ function open(target: HTMLElement) {
     placement: "bottom",
     middleware: [flip(), shift({ crossAxis: true, padding: 8 })],
     strategy: "fixed",
-  }).then(({ x, y }) => {
+  }).then(({ x, y }: { x: number; y: number }) => {
     Object.assign(containerElement.style, {
       left: `${x}px`,
       top: `${y}px`,
@@ -138,7 +165,7 @@ function changeType(e: Event) {
   feedback.focus();
 }
 
-function submit(e: Event, getDataset: () => DOMStringMap) {
+async function submit(e: Event, getDataset: () => DOMStringMap) {
   e.preventDefault();
   const target = e.target as HTMLFormElement;
 
@@ -174,14 +201,33 @@ function submit(e: Event, getDataset: () => DOMStringMap) {
   submitElement.setAttribute("disabled", "");
   submitElement.innerHTML = config.locale.submitLoadingText;
 
+  const { feedbackType, message, file } = target.elements as any;
   const data = {
     ...config.user,
-    feedbackType: (target.elements as any).feedbackType.value,
-    message: (target.elements as any).message.value,
+    feedbackType: feedbackType.value,
+    message: message.value,
     timestamp: Date.now(),
     context: config.context,
     payload: config.payload,
   };
+
+  const fileLabel = document.querySelector(
+    `label[for=${ns}file]`
+  ) as HTMLElement;
+  const hasUpload =
+    config.features?.includes("upload-image") &&
+    file.value &&
+    fileLabel.dataset.hasFile;
+  if (hasUpload) {
+    (data as any).file = {
+      name: file.files[0].name,
+      datauri: await new Promise((resolve) => {
+        const fileReader = new FileReader();
+        fileReader.onload = () => resolve(fileReader.result);
+        fileReader.readAsDataURL(file.files[0]);
+      }),
+    };
+  }
 
   fetch(config.url, {
     headers: { "Content-Type": "application/json" },
