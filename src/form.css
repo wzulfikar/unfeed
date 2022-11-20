@@ -272,12 +272,25 @@
   border-color: var(--unfeed-focus-color);
   box-shadow: none;
 }
+#unfeed__file {
+  display: none;
+}
+label[for="unfeed__file"] {
+  display: none;
+  width: 35px;
+}
+
+.unfeed__submit-container {
+  display: flex;
+  gap: 0.25em;
+}
 
 #unfeed__submit {
   position: relative;
 
   background-color: var(--unfeed-primary-color);
   color: var(--unfeed-primary-color-text);
+  flex-grow: 1;
 }
 #unfeed__submit:hover,
 #unfeed__submit:focus-visible,

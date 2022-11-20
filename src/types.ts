@@ -26,10 +26,11 @@ export type FeedbackOptions = Array<FeedbackType>;
 
 export type UnfeedConfig = {
   url: string;
-  user: Record<any, any>;
+  user: Record<string, string>;
   disableErrorAlert: boolean;
   options: FeedbackOptions;
   locale: Locale;
+  features?: string; // Comma-separated string of opt-in features
   context?: string;
   footer?: string;
   payload?: Record<string, string>;
