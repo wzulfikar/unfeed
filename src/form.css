@@ -292,6 +292,7 @@ label[for="unfeed__file"] {
   background-color: var(--unfeed-primary-color);
   color: var(--unfeed-primary-color-text);
   flex-grow: 1;
+  height: min-content;
 }
 #unfeed__submit:hover,
 #unfeed__submit:focus-visible,
