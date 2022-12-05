@@ -66,14 +66,14 @@
   z-index: 9999;
 
   width: 19rem;
-  height: 14rem;
+  min-height: 14rem;
   box-sizing: border-box;
 
   background-color: var(--unfeed-bg-color);
   box-shadow: var(--unfeed-shadow);
   border-radius: var(--unfeed-border-radius);
 
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 0;
 
   font-family: inherit;
   font-size: 1rem;
@@ -257,7 +257,7 @@
 
 #unfeed__message {
   min-height: 5rem;
-  resize: none;
+  resize: vertical;
 
   border-radius: calc(var(--unfeed-border-radius) / 2);
   border: 2px solid
@@ -267,6 +267,7 @@
   font: inherit;
   color: inherit;
   padding: 0.5rem;
+  line-height: 1.2rem;
 }
 #unfeed__message:focus {
   border-color: var(--unfeed-focus-color);
@@ -334,7 +335,7 @@ label[for="unfeed__file"] {
 
 #unfeed__success {
   display: none;
-  height: 100%;
+  height: 12rem;
 
   flex-direction: column;
   justify-content: center;
