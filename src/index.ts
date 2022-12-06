@@ -232,7 +232,7 @@ async function submit(e: Event, getDataset: () => DOMStringMap) {
   fetch(config.url, {
     headers: { "Content-Type": "application/json" },
     method: "POST",
-    mode: (dataset.unfeedCorsMode || "no-cors") as RequestMode | undefined,
+    mode: dataset.unfeedCorsMode as RequestMode | undefined,
     body: JSON.stringify(data),
   })
     .then(() => {
